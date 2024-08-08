@@ -13,4 +13,4 @@ RUN npm run build
 FROM nginx:stable-alpine as deploy
 WORKDIR /usr/share/nginx/html/
 # Copy what we've installed/built from production
-COPY --from=production /home/node/app/build /usr/share/nginx/html/
+COPY --from=production /home/node/app/build /usr/share/nginx/html/docs
