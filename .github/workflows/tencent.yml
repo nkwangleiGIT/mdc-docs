@@ -1,0 +1,48 @@
+name: Build MatrixDC Document
+
+on:
+  push:
+    branches: [ "main" ]
+    tags:
+      - 'v*'
+
+# Environment variables available to all jobs and steps in this workflow
+env:
+  DOC_IMAGE_URL: matrixdc/docs
+  DEPLOYMENT_NAME: docs
+
+permissions:
+  contents: read
+
+jobs:
+  setup-build-publish-deploy:
+    name: Setup, Build, Publish, and Deploy
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set Variable
+      id: set-env
+      run: |
+        echo "DATE=$(TZ=Asia/Shanghai date +'%Y%m%d')" >> $GITHUB_OUTPUT
+    - name: Show Variable
+      run: echo "varibables ${{ steps.set-env.outputs.DATE }}-${GITHUB_SHA} "
+        
+    # Build
+    - name: Build Docker image
+      run: |
+        docker build -t ${DOC_IMAGE_URL}:{{ steps.set-env.outputs.DATE }}-${GITHUB_SHA} .
+
+    - name: Login github
+      run: |
+        docker login -u ${{ secrets.HUB_USERNAME }} -p '${{ secrets.HUB_SECRET }}'
+
+    # Push the Docker image to docker hub
+    - name: Publish
+      run: |
+        docker push ${DOC_IMAGE_URL}:{{ steps.set-env.outputs.DATE }}-${GITHUB_SHA}
