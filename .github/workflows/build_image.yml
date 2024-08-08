@@ -59,14 +59,6 @@ jobs:
       run: |
         docker push "${DOC_IMAGE_URL}:${{ steps.set-env.outputs.DATE }}-${{ steps.short-sha.outputs.sha }}"
 
-    - uses: azure/setup-kubectl@v4
-    - uses: azure/k8s-set-context@v1
-      with:
-        method: service-account
-        k8s-url: https://zone1-k8s-apiserver.gw.neolink-ai.com
-        k8s-secret: "${{ secrets.K8S_SA_TOKEN }}"
-      id: setcontext
-
     - name: Upgrade the doc service
       run: |
-        kubectl set image deployment/docs -n matrixdc-system docs="${DOC_IMAGE_URL}:${{ steps.set-env.outputs.DATE }}-${{ steps.short-sha.outputs.sha }}"
+        curl -k -XPATCH -H "Content-Type: application/strategic-merge-patch+json" -H "Authorization: bearer {{ secrets.K8S_SA_TOKEN }}" "{{ secrets.K8S_API }}/apis/apps/v1/namespaces/matrixdc-system/deployments/docs --data '{"spec":{"template":{"spec":{"$setElementOrder/containers":[{"name":"docs"}],"containers":[{"image":"${DOC_IMAGE_URL}:${{ steps.set-env.outputs.DATE }}-${{ steps.short-sha.outputs.sha }}","name":"docs"}]}}}}'
