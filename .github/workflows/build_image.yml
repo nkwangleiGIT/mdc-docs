@@ -5,6 +5,14 @@ on:
     branches: [ "main" ]
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'     
+        required: true
+        default: 'warning'
+      tags:
+        description: 'Test scenario' 
 
 # Environment variables available to all jobs and steps in this workflow
 env:
