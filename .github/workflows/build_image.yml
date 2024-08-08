@@ -56,7 +56,7 @@ jobs:
       with:
         method: service-account
         k8s-url: https://zone1-k8s-apiserver.gw.neolink-ai.com
-        k8s-secret: ${{ secrets.K8S_SA_TOKEN }}
+        k8s-secret: "${{ secrets.K8S_SA_TOKEN }}"
       id: setcontext
 
     - name: Upgrade the doc service
