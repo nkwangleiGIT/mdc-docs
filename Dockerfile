@@ -1,6 +1,6 @@
 ## Production ##################################################################
 # Also define a production target which doesn't use devDeps
-FROM matrix-dc/docs-node-base:lts as production
+FROM matrixdc/docs-node-base:lts as production
 WORKDIR /home/node/app
 
 # Copy the source code over
