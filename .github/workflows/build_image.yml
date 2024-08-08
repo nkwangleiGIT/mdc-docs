@@ -34,12 +34,13 @@ jobs:
       name: Get short commit sha
       id: short-sha
     - name: Show Variable
-      run: echo "varibables ${DOC_IMAGE_URL}:${{ steps.set-env.outputs.DATE }}-${{ steps.short-sha.outputs.sha }} "
+      run: |
+        echo "varibables ${DOC_IMAGE_URL}:${{ steps.set-env.outputs.DATE }}-${{ steps.short-sha.outputs.sha }} "
         
     # Build
     - name: Build Docker image
       run: |
-        docker build -t ${DOC_IMAGE_URL}:{{ steps.set-env.outputs.DATE }}-${{ steps.short-sha.outputs.sha }} .
+        docker build -t "${DOC_IMAGE_URL}:${{ steps.set-env.outputs.DATE }}-${{ steps.short-sha.outputs.sha }}" .
 
     - name: Login github
       run: |
