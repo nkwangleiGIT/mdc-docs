@@ -52,9 +52,11 @@ jobs:
 
     # Push the Docker image to docker hub
     - name: Publish image
+      id: push-image
       run: |
         docker push "${DOC_IMAGE_URL}:${{ steps.set-env.outputs.DATE }}-${{ steps.short-sha.outputs.sha }}"
+        echo "newimage=${DOC_IMAGE_URL}:${{ steps.set-env.outputs.DATE }}-${{ steps.short-sha.outputs.sha }}" >> $GITHUB_OUTPUT
 
     - name: Upgrade the doc service
       run: |
-        curl -k -XPATCH -H "Content-Type: application/strategic-merge-patch+json" -H "Authorization: bearer ${{ secrets.K8S_SA_TOKEN }}" "${{ secrets.K8S_API }}"/apis/apps/v1/namespaces/matrixdc-system/deployments/docs --data '{"spec":{"template":{"spec":{"$setElementOrder/containers":[{"name":"docs"}],"containers":[{"image":"${DOC_IMAGE_URL}:${{ steps.set-env.outputs.DATE }}-${{ steps.short-sha.outputs.sha }}","name":"docs"}]}}}}'
+        curl -k -XPATCH -H "Content-Type: application/strategic-merge-patch+json" -H "Authorization: bearer ${{ secrets.K8S_SA_TOKEN }}" "${{ secrets.K8S_API }}"/apis/apps/v1/namespaces/matrixdc-system/deployments/docs --data '{"spec":{"template":{"spec":{"$setElementOrder/containers":[{"name":"docs"}],"containers":[{"image":"${{ steps.push-image.outputs.newimage }}","name":"docs"}]}}}}'
