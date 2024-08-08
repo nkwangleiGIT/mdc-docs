@@ -50,3 +50,15 @@ jobs:
     - name: Publish image
       run: |
         docker push "${DOC_IMAGE_URL}:${{ steps.set-env.outputs.DATE }}-${{ steps.short-sha.outputs.sha }}"
+
+    - uses: azure/setup-kubectl@v4
+    - uses: azure/k8s-set-context@v1
+      with:
+        method: service-account
+        k8s-url: https://zone1-k8s-apiserver.gw.neolink-ai.com
+        k8s-secret: ${{ secrets.K8S_SA_TOKEN }}
+      id: setcontext
+
+    - name: Upgrade the doc service
+      run: |
+        kubectl set image deployment/docs -n matrixdc-system docs="${DOC_IMAGE_URL}:${{ steps.set-env.outputs.DATE }}-${{ steps.short-sha.outputs.sha }}"
